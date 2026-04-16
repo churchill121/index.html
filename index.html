@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hng Stage 0 Task Card</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #e0e1e9;
+      --surface: #ecedf1;
+      --surface2: #d4d7e0;
+      --border: rgba(6, 3, 11, 0.946);
+      --border-hv: rgba(6, 3, 11, 0.946);
+      --text-1: #070718;
+      --text-2: #01020a;
+      --text-3: #000104;
+      --amber: darkblue;
+      --amber-dim: rgba(245,167,36,0.12);
+      --white: #d8d2d2;
+      --white-dim: rgba(240,83,83,0.12);
+      --green: #40c98a;
+      --green-dim: rgba(64,201,138,0.12);
+      --blue: #5b9af5;
+      --blue-dim: rgba(91,154,245,0.12);
+      /* FIX 1: Added missing CSS variables used by priority badges and footer buttons */
+      --red: #f54040;
+      --red-dim: rgba(245,64,64,0.12);
+      --purple: #a855f7;
+      --purple-dim: rgba(168,85,247,0.12);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow: 0 4px 32px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.3);
+    }
+    body {
+      background: var(--bg);
+      font-family: 'Sora', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+      color: var(--text-1);
+    }
+
+    /* ── CARD ── */
+    article[data-testid="test-todo-card"] {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 580px;
+      transition: border-color 0.2s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    article[data-testid="test-todo-card"]::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--amber) 0%, transparent 100%);
+      opacity: 0.8;
+    }
+    article[data-testid="test-todo-card"]:focus-within {
+      border-color: var(--border-hv);
+    }
+    article[data-testid="test-todo-card"].done {
+      border-color: var(--border);
+      opacity: 0.72;
+    }
+    article[data-testid="test-todo-card"].done::before {
+      background: linear-gradient(90deg, var(--green) 0%, transparent 100%);
+    }
+
+    /* ── TOP ROW: checkbox + title + priority ── */
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 0.75rem;
+    }
+    .checkbox-wrap {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      padding-top: 3px;
+    }
+    .checkbox-wrap label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    input[data-testid="test-todo-complete-toggle"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 1.5px solid var(--border-hv);
+      border-radius: 5px;
+      background: var(--surface2);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.18s, border-color 0.18s;
+      flex-shrink: 0;
+    }
+    input[data-testid="test-todo-complete-toggle"]:checked {
+      background: var(--green);
+      border-color: var(--green);
+    }
+    /* FIX 2a: Corrected typo "completetoggle" → "complete-toggle" */
+    input[data-testid="test-todo-complete-toggle"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 6px;
+      width: 5px; height: 9px;
+      border: 2px solid #0e0f14;
+      border-top: none; border-left: none;
+      transform: rotate(45deg);
+    }
+    input[data-testid="test-todo-complete-toggle"]:focus-visible {
+      outline: 2px solid var(--amber);
+      outline-offset: 2px;
+    }
+    /* FIX 2b: Corrected typo "completetoggle" → "complete-toggle" */
+    input[data-testid="test-todo-complete-toggle"]:hover:not(:checked) {
+      border-color: var(--amber);
+    }
+    .title-group { flex: 1; min-width: 0; }
+    h2[data-testid="test-todo-title"] {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 1.15rem;
+      font-weight: 400;
+      color: var(--text-1);
+      line-height: 1.35;
+      transition: color 0.2s;
+      word-break: break-word;
+    }
+    .done h2[data-testid="test-todo-title"] {
+      text-decoration: line-through;
+      color: var(--text-3);
+    }
+
+    /* ── PRIORITY BADGE ── */
+    span[data-testid="test-todo-priority"] {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 99px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .priority-high    { background: var(--red-dim);   color: var(--red); }
+    .priority-medium  { background: var(--amber-dim); color: var(--amber); }
+    .priority-low     { background: var(--green-dim); color: var(--green); }
+    .priority-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .priority-high   .priority-dot { background: var(--red); }
+    .priority-medium .priority-dot { background: var(--amber); }
+    .priority-low    .priority-dot { background: var(--green); }
+
+    /* ── DESCRIPTION ── */
+    p[data-testid="test-todo-description"] {
+      font-size: 0.83rem;
+      color: var(--text-2);
+      line-height: 1.65;
+      margin-bottom: 1rem;
+      word-break: break-word;
+    }
+
+    /* ── META ROW ── */
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.75rem;
+      color: var(--text-2);
+    }
+    .meta-icon {
+      width: 14px; height: 14px;
+      opacity: 0.6;
+    }
+    time[data-testid="test-todo-due-date"] {
+      font-size: 0.75rem;
+      color: var(--text-2);
+    }
+    time[data-testid="test-todo-time-remaining"] {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      color: var(--amber);
+      background: var(--amber-dim);
+      transition: background 0.3s, color 0.3s;
+    }
+    time[data-testid="test-todo-time-remaining"].overdue {
+      color: var(--red);
+      background: var(--red-dim);
+    }
+    time[data-testid="test-todo-time-remaining"].due-soon {
+      color: var(--amber);
+      background: var(--amber-dim);
+    }
+
+    /* ── STATUS ── */
+    span[data-testid="test-todo-status"] {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 99px;
+    }
+    .status-pending     { background: var(--surface2);  color: var(--text-2); border: 1px solid var(--border); }
+    .status-in-progress { background: var(--blue-dim);  color: var(--blue);   border: 1px solid rgba(91,154,245,0.2); }
+    .status-done        { background: var(--green-dim); color: var(--green);  border: 1px solid rgba(64,201,138,0.2); }
+    .status-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .status-pending     .status-dot { background: var(--text-3); }
+    .status-in-progress .status-dot { background: var(--blue); }
+    .status-done        .status-dot { background: var(--green); }
+
+    /* ── TAGS ── */
+    ul[data-testid="test-todo-tags"] {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 1.1rem;
+    }
+    ul[data-testid="test-todo-tags"] li {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: var(--surface2);
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      transition: border-color 0.15s;
+    }
+    ul[data-testid="test-todo-tags"] li:hover {
+      border-color: var(--border-hv);
+      color: var(--text-1);
+    }
+
+    /* ── FOOTER ── */
+    .card-footer {
+      display: flex;
+      align-items: stretch;
+      border-top: 1px solid var(--border);
+      margin: 0 -1.5rem -1.5rem;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      overflow: hidden;
+    }
+    .footer-left {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: var(--surface2);
+      border-right: 1px solid var(--border);
+    }
+    .fl-label {
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+    .fl-status { font-size: .75rem; font-weight: 500; color: var(--blue); }
+    .fl-pulse  { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); flex-shrink: 0; }
+    .done .fl-pulse  { background: var(--green); }
+    .done .fl-status { color: var(--green); }
+    .footer-right { display: flex; align-items: stretch; }
+    .footer-action {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 16px;
+      background: transparent;
+      border: none;
+      border-left: 1px solid var(--border);
+      cursor: pointer;
+      font-size: .73rem;
+      font-weight: 500;
+      color: var(--text-2);
+      transition: background .15s, color .15s;
+      white-space: nowrap;
+    }
+    .footer-action:hover          { background: rgba(255,255,255,.04); color: var(--text-1); }
+    .footer-action.danger         { color: var(--red); }
+    .footer-action.danger:hover   { background: var(--red-dim); }
+    .footer-action.primary        { color: var(--purple); }
+    .footer-action.primary:hover  { background: var(--purple-dim); }
+    .footer-action:focus-visible  { outline: 2px solid var(--amber); outline-offset: -2px; }
+
+    /* ── VISUALLY HIDDEN ── */
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      article[data-testid="test-todo-card"] { padding: 1.1rem; }
+      h2[data-testid="test-todo-title"]     { font-size: 1rem; }
+      .meta-row { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<article
+  data-testid="test-todo-card"
+  aria-labelledby="task-title"
+  role="region"
+>
+  <!-- ── HEADER ── -->
+  <div class="card-header">
+    <div class="checkbox-wrap">
+      <label for="todo-toggle">
+        <span class="sr-only">Mark task as complete</span>
+        <input
+          type="checkbox"
+          id="todo-toggle"
+          data-testid="test-todo-complete-toggle"
+          aria-label="Mark task as complete"
+        />
+      </label>
+    </div>
+    <div class="title-group">
+      <h2 id="task-title" data-testid="test-todo-title">
+        Hng Stage zero Profile Card with responsive component
+      </h2>
+    </div>
+    <span
+      data-testid="test-todo-priority"
+      class="priority-medium"
+      aria-label="Priority: Medium"
+    >
+      <span class="priority-dot" aria-hidden="true"></span>
+      Hard
+    </span>
+  </div>
+
+  <!-- ── DESCRIPTION ── -->
+  <p data-testid="test-todo-description">
+    Building a fully functional to-do card
+  </p>
+
+  <!-- ── META ROW: due date / time remaining / status ── -->
+  <div class="meta-row" role="list" aria-label="Task metadata">
+    <div class="meta-item" role="listitem">
+      <svg class="meta-icon" aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="3" width="12" height="12" rx="2"/>
+        <path d="M5 1v2M11 1v2M2 7h12"/>
+      </svg>
+      <time data-testid="test-todo-due-date" id="due-date-display" datetime="2026-04-20T18:00:00Z">
+        Due Apr 17, 2026
+      </time>
+    </div>
+    <div class="meta-item" role="listitem">
+      <svg class="meta-icon" aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="8" r="6"/>
+        <path d="M8 5v3l2 2"/>
+      </svg>
+      <time
+        data-testid="test-todo-time-remaining"
+        id="time-remaining"
+        aria-live="polite"
+        aria-atomic="true"
+        datetime="2026-04-17T18:00:00Z"
+      >
+        Calculating…
+      </time>
+    </div>
+    <div class="meta-item" role="listitem">
+      <span
+        data-testid="test-todo-status"
+        id="todo-status"
+        class="status-in-progress"
+        aria-label="Status: In Progress"
+      >
+        <span class="status-dot" aria-hidden="true"></span>
+        In Progress
+      </span>
+    </div>
+  </div><!-- FIX 4: Added missing closing </div> for .meta-row -->
+
+  <!-- ── FOOTER ── -->
+  <!-- FIX 3: Moved footer HTML out of <script> tags and into the correct place inside <article> -->
+  <div class="card-footer">
+    <!-- LEFT: live status block -->
+    <div class="footer-left" aria-label="Current status">
+      <span class="fl-pulse" id="fpulse" aria-hidden="true"></span>
+      <div>
+        <div class="fl-label">Status</div>
+        <div class="fl-status" id="fstatus">In Progress</div>
+      </div>
+    </div>
+    <!-- RIGHT: action buttons -->
+    <div class="footer-right" role="group" aria-label="Task actions">
+      <button class="footer-action primary"
+        data-testid="test-todo-assign-button"
+        aria-label="Assign task"
+        onclick="console.log('Assign clicked')">
+        <!-- FIX 6a: stroke-width was "strokewidth" (missing hyphen) -->
+        <svg aria-hidden="true" width="13" height="13" viewBox="0 0 16 16"
+          fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="6" cy="5" r="3"/>
+          <path d="M1 13c0-3 2-4 5-4s5 1 5 4"/>
+          <path d="M13 7v4M11 9h4" stroke-linecap="round"/>
+        </svg>
+        Assign
+      </button>
+      <button class="footer-action"
+        data-testid="test-todo-duplicate-button"
+        aria-label="Duplicate task"
+        onclick="console.log('Duplicate clicked')">
+        <!-- FIX 6b: stroke-width was "strokewidth" (missing hyphen) -->
+        <svg aria-hidden="true" width="13" height="13" viewBox="0 0 16 16"
+          fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="5" y="5" width="8" height="8" rx="1.5"/>
+          <path d="M3 11V3h8"/>
+        </svg>
+        Duplicate
+      </button>
+      <button class="footer-action danger"
+        data-testid="test-todo-archive-button"
+        aria-label="Archive task"
+        onclick="alert('Archive clicked')">
+        <!-- FIX 6c: stroke-width was "strokewidth" (missing hyphen) -->
+        <svg aria-hidden="true" width="13" height="13" viewBox="0 0 16 16"
+          fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="1" y="2" width="14" height="4" rx="1"/>
+          <path d="M2 6v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6"/>
+          <path d="M6 9h4"/>
+        </svg>
+        Archive
+      </button>
+    </div>
+  </div>
+
+</article><!-- FIX 5: Added missing closing </article> tag -->
+
+<script>
+  const DUE_DATE = new Date('2026-04-17T18:00:00Z');
+
+  function formatTimeRemaining(now, due) {
+    const diffMs   = due - now;
+    const diffMins = Math.round(diffMs / 60000);
+    const diffHrs  = Math.round(diffMs / 3600000);
+    const diffDays = Math.round(diffMs / 86400000);
+    const el = document.getElementById('time-remaining');
+    if (diffMins === 0) {
+      el.textContent = 'Due now!';
+      el.className = 'due-soon';
+    } else if (diffMs < 0) {
+      const absMins = Math.abs(diffMins);
+      const absHrs  = Math.abs(diffHrs);
+      const absDays = Math.abs(diffDays);
+      el.className = 'overdue';
+      if (absMins < 60)       el.textContent = `Overdue by ${absMins} minute${absMins !== 1 ? 's' : ''}`;
+      else if (absHrs < 24)   el.textContent = `Overdue by ${absHrs} hour${absHrs !== 1 ? 's' : ''}`;
+      else                    el.textContent = `Overdue by ${absDays} day${absDays !== 1 ? 's' : ''}`;
+    } else {
+      el.className = diffDays <= 1 ? 'due-soon' : '';
+      if (diffMins < 60)      el.textContent = `Due in ${diffMins} minute${diffMins !== 1 ? 's' : ''}`;
+      else if (diffHrs < 24)  el.textContent = `Due in ${diffHrs} hour${diffHrs !== 1 ? 's' : ''}`;
+      else if (diffDays === 1) el.textContent = 'Due tomorrow';
+      else                    el.textContent = `Due in ${diffDays} days`;
+    }
+  }
+
+  function updateTime() { formatTimeRemaining(new Date(), DUE_DATE); }
+  updateTime();
+  setInterval(updateTime, 60000);
+
+  /* ── Checkbox toggle behaviour ── */
+  const toggle  = document.querySelector('[data-testid="test-todo-complete-toggle"]');
+  const card    = document.querySelector('[data-testid="test-todo-card"]');
+  const status  = document.getElementById('todo-status');
+  const fstatus = document.getElementById('fstatus');
+  const fpulse  = document.getElementById('fpulse');
+
+  toggle.addEventListener('change', function () {
+    if (this.checked) {
+      card.classList.add('done');
+      status.className = 'status-done';
+      status.setAttribute('aria-label', 'Status: Done');
+      status.innerHTML = '<span class="status-dot" aria-hidden="true"></span>Done';
+      fstatus.textContent = 'Done';
+    } else {
+      card.classList.remove('done');
+      status.className = 'status-in-progress';
+      status.setAttribute('aria-label', 'Status: In Progress');
+      status.innerHTML = '<span class="status-dot" aria-hidden="true"></span>In Progress';
+      fstatus.textContent = 'In Progress';
+    }
+  });
+</script>
+</body>
+</html>
